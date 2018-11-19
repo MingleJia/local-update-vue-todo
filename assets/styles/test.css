@@ -1,0 +1,5 @@
+body{
+    color:red;
+    /* 使用webpack加载图片，css文件的内容，如果css文件中还依赖了其他的文件，依旧会处理 */
+    background-image: url('../images/done.svg');
+}
