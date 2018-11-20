@@ -4,6 +4,7 @@ const webpack = require('webpack');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin'); //引入插件
 const isDev = process.env.NODE_ENV === 'development';
+
 const config = {
     target:"web",
     // webpack负责打包前端资源
@@ -12,21 +13,16 @@ const config = {
         filename: 'bundle.js',
         path:path.join(__dirname, 'dist'), // __dirname表示当前文件所在路径c
     },
-    plugins: [
-        // make sure to include the plugin for the magic
-        new webpack.DefinePlugin({ // 使用vue框架时 必须要用这个插件
-            'process.env': {
-                NODE_ENV:isDev?'"development"':'"production"', // 注意单引号内的双引号 
-            }
-        }),// webpack 环境区分打包，选择不同的源代码进行打包 开发版本中用到错误提示 --加大文件大小，其次，降低代码运行效率
-        new VueLoaderPlugin(),
-        new HtmlWebpackPlugin()
-    ],
+    mode: 'development',
     module:{
         rules:[
             {
                 test:/\.vue$/,
                 loader:'vue-loader',
+            },
+            {
+                test:/\.jsx$/,
+                loader:'babel-loader',
             },
             {
                 test:/\.css$/,
@@ -35,11 +31,17 @@ const config = {
                 // style-loader：使用<style></style>将css-loader内部样式注入到我们的HTML页面
             },
             {
-                test:/\.styl$/, // 安装stylus-loader stylus
+                test: /\.styl(us)?$/, // 安装stylus-loader stylus
                 use:[
                     'style-loader',
                     'css-loader',
-                    'stylus-loader'
+                    {
+                        loader:'postcss-loader', // 能够编译生成sourceMap 
+                        options: {
+                            sourceMap:true, // 若stylus-loader已生成source-map，则postcss-loader就不再重新生成
+                        }
+                    },
+                    'stylus-loader' // 能够编译生成sourceMap
                 ]
             },
             {
@@ -57,7 +59,16 @@ const config = {
             }
         ]
     },
-    mode: 'production',
+    plugins: [
+        // make sure to include the plugin for the magic
+        new webpack.DefinePlugin({ // 使用vue框架时 必须要用这个插件
+            'process.env': {
+                NODE_ENV:isDev?'"development"':'"production"', // 注意单引号内的双引号 
+            }
+        }),// webpack 环境区分打包，选择不同的源代码进行打包 开发版本中用到错误提示 --加大文件大小，其次，降低代码运行效率
+        new VueLoaderPlugin(),
+        new HtmlWebpackPlugin()
+    ],
 }
 
 if(isDev) {

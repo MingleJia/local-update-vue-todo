@@ -1,0 +1,9 @@
+{
+    "presets":[
+        "env"
+    ],
+    "plugins": [
+        "transform-vue-jsx" // 专门用于转化vue中的jsx代码
+    ]
+}
+// babelrc展示如何使用render方法以及vue也可以支持jsx代码
