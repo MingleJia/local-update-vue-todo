@@ -1,6 +1,6 @@
 <template>
     <div class="helper">
-        <span class="left">2 items left</span>
+        <span class="left">{{unfinishedTodoLength}} items left</span>
         <span class="tabs">
             <!-- v-for  map foreach 耗时耗资源，下次循环时 如果key相同 会复用原有的节点，不需重新生成新节点 -->
             <span
@@ -19,6 +19,10 @@ export default {
         filter:{
             type:String,
             required:true,
+        },
+        todos: {
+            type:Array,
+            required:true,
         }
     },
     data() {
@@ -26,9 +30,18 @@ export default {
             states:['all','active','completed']
         }
     },
+    computed: {
+        unfinishedTodoLength(){
+            return this.todos.filter(todo => !todo.completed).length;
+        }
+    },
     methods:{
-        toggleFilter(state){},
-        clearAllCompleted(){},
+        toggleFilter(state){
+            this.$emit('toggle',state)
+        },
+        clearAllCompleted(){
+            this.$emit('clearAllCompleted')
+        },
     }
 }
 </script>
