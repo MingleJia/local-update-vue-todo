@@ -3,6 +3,13 @@ const path = require('path'); // path 是webpack基本包
 const webpack = require('webpack');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin'); //引入插件
+// https://blog.csdn.net/lqlqlq007/article/details/83865176
+// https://blog.csdn.net/harsima/article/details/80819747
+// https://www.imooc.com/qadetail/266655
+
+// const ExtractPlugin = require('extract-text-webpack-plugin'); // 作用：非js代码的东西单独打包成静态资源文件（可单独用于浏览器缓存，或通过js将样式写入浏览器，提高效率）
+const miniCssExtractPlugin = require('mini-css-extract-plugin'); // 作用：webpack4中：extract-text-webpack-plugin-->mini-css-extract-plugin
+
 const isDev = process.env.NODE_ENV === 'development';
 
 const config = {
@@ -10,10 +17,10 @@ const config = {
     // webpack负责打包前端资源
     entry:path.join(__dirname,'src/index.js'),
     output:{
-        filename: 'bundle.js',
+        filename: 'bundle.[hash:8].js',
         path:path.join(__dirname, 'dist'), // __dirname表示当前文件所在路径c
     },
-    mode: 'development',
+    mode: 'production',
     module:{
         rules:[
             {
@@ -24,26 +31,38 @@ const config = {
                 test:/\.jsx$/,
                 loader:'babel-loader',
             },
+            // {
+            //     test:/\.css$/,
+            //     use: [
+            //         miniCssExtractPlugin.loader,
+            //         {
+            //             loader: 'css-loader',
+            //             options: {
+            //                 url: false
+            //             }
+            //         }
+            //     ]
+            // },
             {
                 test:/\.css$/,
                 use:['style-loader','css-loader'],
                 // css-loader：读取css文件内容
                 // style-loader：使用<style></style>将css-loader内部样式注入到我们的HTML页面
             },
-            {
-                test: /\.styl(us)?$/, // 安装stylus-loader stylus
-                use:[
-                    'style-loader',
-                    'css-loader',
-                    {
-                        loader:'postcss-loader', // 能够编译生成sourceMap 
-                        options: {
-                            sourceMap:true, // 若stylus-loader已生成source-map，则postcss-loader就不再重新生成
-                        }
-                    },
-                    'stylus-loader' // 能够编译生成sourceMap
-                ]
-            },
+            // {
+            //     test: /\.styl(us)?$/, // 安装stylus-loader stylus
+            //     use:[
+            //         'style-loader',
+            //         'css-loader',
+            //         {
+            //             loader:'postcss-loader', // 能够编译生成sourceMap 
+            //             options: {
+            //                 sourceMap:true, // 若stylus-loader已生成source-map，则postcss-loader就不再重新生成
+            //             }
+            //         },
+            //         'stylus-loader' // 能够编译生成sourceMap
+            //     ]
+            // },
             {
                 test:/\.(png|jpg|jpeg|gif|svg)/,
                 use:[
@@ -72,6 +91,20 @@ const config = {
 }
 
 if(isDev) {
+    config.module.rules.push({
+        test: /\.styl(us)?$/, // 安装stylus-loader stylus
+        use:[
+            'style-loader',
+            'css-loader',
+            {
+                loader:'postcss-loader', // 能够编译生成sourceMap 
+                options: {
+                    sourceMap:true, // 若stylus-loader已生成source-map，则postcss-loader就不再重新生成
+                }
+            },
+            'stylus-loader' // 能够编译生成sourceMap
+        ]
+    })
     config.devtool = '#cheap-module-eval-source-map',
     config.devServer = { // 启动服务
         // 关于webpack devserver的东西都在此配置
@@ -91,6 +124,42 @@ if(isDev) {
     config.plugins.push(
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin() 
+    )
+} else {
+    config.output.filename = '[name].[chunkhash:8].js'
+    config.module.rules.push({
+        test: /\.styl(us)?$/, // 安装stylus-loader stylus
+        // use:ExtractPlugin.extract({
+        //     fallback:'style-loader',
+        //     use: [
+        //         'css-loader',
+        //         {
+        //             loader:'postcss-loader', // 能够编译生成sourceMap 
+        //             options: {
+        //                 sourceMap:true, // 若stylus-loader已生成source-map，则postcss-loader就不再重新生成
+        //             }
+        //         },
+        //         'stylus-loader' // 能够编译生成sourceMap
+        //     ]
+        // })
+        use:[
+            miniCssExtractPlugin.loader,
+            'css-loader',
+            {
+                loader:'postcss-loader', // 能够编译生成sourceMap 
+                options: {
+                    sourceMap:true, // 若stylus-loader已生成source-map，则postcss-loader就不再重新生成
+                }
+            },
+            'stylus-loader'
+        ]
+    })
+    config.plugins.push(
+        // new ExtractPlugin('styles.[contentHash:8].css')
+        new miniCssExtractPlugin({
+            filename: "[name].[chunkhash:8].css",
+     　　    chunkFilename: "[id].css"
+        })
     )
 }
 module.exports = config;

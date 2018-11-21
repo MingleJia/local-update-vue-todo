@@ -46,7 +46,7 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
-.helper {
+.helper 
     font-weight 100
     display flex
     justify-content space-between
@@ -55,36 +55,28 @@ export default {
     background-color #ffffff
     font-size 14px
     font-smoothing: antialiased;
-}
-.left, .clear, .tabs {
+.left, .clear, .tabs
     padding 0 10px
     box-sizing border-box
     font-weight bold
-}
-.left, .clear {
+.left, .clear
     width 150px
-}
-.left {
+.left
     text-align left
-}
-.clear {
+.clear 
     text-align: right
     cursor pointer
-}
-.tabs {
+.tabs
     width 200px
     display flex
     justify-content space-around
-    * {
+    *
         display inline-block
         padding 0 10px
         cursor pointer
         border 1px solid rgba(175, 47, 47, 0)
-        &.actived {
+        &.actived 
             border-color rgba(175, 47, 47, 0.4)
             border-radius 5px
-        }
-    }
-}
 </style>
 
